@@ -5,7 +5,7 @@ import sys
 
 np.random.seed(12345)
 
-f = open('spam.txt','r')
+f = open('prevData/spam.txt','r',encoding='ISO-8859-1')
 raw = f.readlines()
 f.close()
 
@@ -13,7 +13,7 @@ spam = list()
 for row in raw:
     spam.append(row[:-2].split(" "))
     
-f = open('ham.txt','r')
+f = open('prevData/ham.txt','r',encoding='ISO-8859-1')
 raw = f.readlines()
 f.close()
 
