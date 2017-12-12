@@ -1,6 +1,5 @@
 import numpy as np
 from collections import Counter
-import sys
 import time
 
 np.random.seed(12345)
@@ -12,6 +11,7 @@ class LogisticRegression(object):
 
         self.iterations = iterations
         self.alpha = alpha
+        self.total_time = 0.0
 
         def create_dataset(file_path):
             f = open(file_path, 'r', encoding='ISO-8859-1')
@@ -54,7 +54,7 @@ class LogisticRegression(object):
                 n += 2
             time_end = time.time()
             print("Iter:" + str(iter) + " Loss:" + str(error / float(n)))
-            print("Time taken = " + str(time_end - time_start))
+            self.total_time += time_end - time_start
 
     def softmax(self, x):
         return 1 / (1 + np.exp(-x))
@@ -73,8 +73,11 @@ class LogisticRegression(object):
             self.weights[self.word_freq[word]] -= delta * alpha
         return delta
 
+    def get_average_time(self):
+        return self.total_time / self.iterations
 
-model = LogisticRegression(iterations=3)
+
+model = LogisticRegression(iterations=10)
 
 # create vocabulary dictionary, weights to be used for training
 model.create_word_count()
@@ -89,30 +92,31 @@ tn = 0
 tp = 0
 fn = 0
 
+total_time = 0.0
 for i, h in enumerate(model.test_positives):
+    time_start = time.time()
     pred = model.predict(h)
+    time_end = time.time()
+    total_time += time_end - time_start
 
-    if (pred < 0.5):
+    if pred < 0.5:
         tn += 1
     else:
         fp += 1
 
-    if (i % 10 == 0):
-        sys.stdout.write('\rI:' + str(tn + tp + fn + fp) + " % Correct:" + str(100 * tn / float(tn + fp))[0:6])
-
 for i, h in enumerate(model.test_negatives):
+    time_start = time.time()
     pred = model.predict(h)
+    time_end = time.time()
+    total_time += time_end - time_start
 
-    if (pred >= 0.5):
+    if pred >= 0.5:
         tp += 1
     else:
         fn += 1
 
-    if (i % 10 == 0):
-        sys.stdout.write(
-            '\rI:' + str(tn + tp + fn + fp) + " % Correct:" + str(100 * (tn + tp) / float(tn + tp + fn + fp))[0:6])
-sys.stdout.write('\rI:' + str(tn + tp + fn + fp) + " Correct: %" + str(100 * (tn + tp) / float(tn + tp + fn + fp))[0:6])
-
-print("\nTest Accuracy: %" + str(100 * (tn + tp) / float(tn + tp + fn + fp))[0:6])
+print("Average training time {:0.2f}".format(model.get_average_time()))
+print("Average prediction time(micro s) {:0.2f}".format(total_time/200*10**6))
+print("Test Accuracy: %" + str(100 * (tn + tp) / float(tn + tp + fn + fp))[0:6])
 print("False Positives: %" + str(100 * fp / float(tp + fp))[0:4] + "    <- privacy violation level out of 100.0%")
 print("False Negatives: %" + str(100 * fn / float(tn + fn))[0:4] + "   <- security risk level out of 100.0%")
