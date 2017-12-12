@@ -29,8 +29,8 @@ class HomomorphicLogisticRegression(object):
                 data.append(row[:-2].split(" "))
             return data
 
-        spam_dataset = create_dataset('prevData/spam.txt')
-        ham_dataset = create_dataset('prevData/ham.txt')
+        spam_dataset = create_dataset('spam.txt')
+        ham_dataset = create_dataset('ham.txt')
         self.positives = spam_dataset[0:-100]
         self.negatives = ham_dataset[0:-100]
         self.test_positives = ham_dataset[-100:]
